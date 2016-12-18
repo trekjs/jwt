@@ -1,0 +1,35 @@
+{
+  "name": "trek-jwt",
+  "version": "0.0.0",
+  "description": "JSON Web Tokens Middleware for Trek.js",
+  "main": "index.js",
+  "scripts": {
+    "bench": "matcha benchmarks",
+    "test": "nyc --reporter=lcov ava"
+  },
+  "repository": "trekjs/jwt",
+  "keywords": [
+    "auth",
+    "authentication",
+    "authn",
+    "authorization",
+    "authz",
+    "http",
+    "jsonwebtoken",
+    "jwt",
+    "middleware",
+    "oauth",
+    "token",
+    "trek"
+  ],
+  "author": "Fangdun Cai <cfddream@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "ava": "0.17",
+    "co": "4.6",
+    "nyc": "10"
+  },
+  "dependencies": {
+    "jsonwebtoken": "7.2.1"
+  }
+}
