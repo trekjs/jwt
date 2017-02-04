@@ -20,8 +20,9 @@ const jwt = require('..')
 
 async function start () {
   const app = new Engine()
+  const secret = 'Trek Engine'
 
-  app.use(jwt())
+  app.use(jwt({ secret }))
 
   app.use(({ req, res }) => {
     res.body = req.body
