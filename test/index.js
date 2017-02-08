@@ -35,7 +35,7 @@ test('should get user from header', async t => {
   app.use(jwt(options))
 
   app.use(async ctx => {
-    ctx.res.send(200, ctx.state.user)
+    ctx.res.send(200, ctx.store.get('user'))
   })
 
   const url = await listen(app)
@@ -61,7 +61,7 @@ test('should get user from query', async t => {
   app.use(jwt(options))
 
   app.use(async ctx => {
-    ctx.res.send(200, ctx.state.user)
+    ctx.res.send(200, ctx.store.get('user'))
   })
 
   const url = await listen(app)
@@ -87,7 +87,7 @@ test('should get user from cookie', async t => {
   app.use(jwt(options))
 
   app.use(async ctx => {
-    ctx.res.send(200, ctx.state.user)
+    ctx.res.send(200, ctx.store.get('user'))
   })
 
   const url = await listen(app)

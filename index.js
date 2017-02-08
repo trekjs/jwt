@@ -48,9 +48,7 @@ function makeJWT (options = {}) {
     }
 
     return verify(token, secret, verifyOptions)
-      .then(result => {
-        ctx.state[key] = result
-      })
+      .then(result => ctx.store.set(key, result))
       .catch(err => {
         if (!passthrough) {
           ctx.res.send(401, err)
