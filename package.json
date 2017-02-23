@@ -25,11 +25,11 @@
   ],
   "main": "index.js",
   "engines": {
-    "node": ">=7"
+    "node": ">=7.6"
   },
   "scripts": {
     "lint": "xo",
-    "test": "xo && nyc node --harmony-async-await ./node_modules/.bin/ava"
+    "test": "xo && nyc ava"
   },
   "dependencies": {
     "jsonwebtoken": "7.2.1"

@@ -102,9 +102,6 @@ function jwtFromCookie (name) {
 
 function verify (token, secret, options) {
   return new Promise((resolve, reject) => {
-    JWT.verify(token, secret, options, (err, decoded) => {
-      if (err) return reject(err)
-      resolve(decoded)
-    })
+    JWT.verify(token, secret, options, (err, decoded) => err ? reject(err) : resolve(decoded))
   })
 }
