@@ -1,6 +1,6 @@
 {
   "name": "trek-jwt",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "JSON Web Tokens Middleware for Trek.js",
   "repository": "trekjs/jwt",
   "author": {
@@ -32,15 +32,15 @@
     "test": "xo && nyc ava"
   },
   "dependencies": {
-    "jsonwebtoken": "7.2.1"
+    "jsonwebtoken": "^7.3.0"
   },
   "devDependencies": {
-    "ava": "0.18",
+    "ava": "0.19",
     "nyc": "10",
     "request": "2",
     "request-promise": "4",
-    "trek-engine": "0.5",
-    "xo": "0.17"
+    "trek-engine": "1",
+    "xo": "0.18"
   },
   "ava": {
     "concurrency": 5,
@@ -48,6 +48,7 @@
   },
   "nyc": {
     "reporter": [
+      "html",
       "lcov",
       "text"
     ]

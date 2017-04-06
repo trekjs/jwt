@@ -24,22 +24,22 @@ function makeJWT (options = {}) {
 
   const [via, name] = tokenLookup.split(':')
 
-  let extractor = jwtFromHeader(name, authScheme)
+  let extractor = jwtFromHeader
 
   switch (via) {
     case 'query':
-      extractor = jwtFromQuery(name)
+      extractor = jwtFromQuery
       break
     case 'cookie':
-      extractor = jwtFromCookie(name)
+      extractor = jwtFromCookie
       break
-    // no default
+    // No default
   }
 
   return jwt
 
   function jwt (ctx, next) {
-    const { token, error } = extractor(ctx)
+    const { token, error } = extractor(ctx, name, authScheme)
 
     if (!passthrough && error) {
       return ctx.res.send(401, error)
@@ -60,43 +60,31 @@ function makeJWT (options = {}) {
   }
 }
 
-function jwtFromHeader (header, authScheme) {
-  return getToken
+function jwtFromHeader (ctx, header, authScheme) {
+  const auth = ctx.req.get(header) || ''
+  const [scheme, token = ''] = auth.split(' ')
 
-  function getToken (ctx) {
-    const auth = ctx.req.get(header) || ''
-    const [scheme, token = ''] = auth.split(' ')
-
-    return {
-      token,
-      error: !(scheme === authScheme && 0 < token.length) && 'Missing or invalid jwt in the request header'
-    }
+  return {
+    token,
+    error: !(scheme === authScheme && 0 < token.length) && 'Missing or invalid jwt in the request header'
   }
 }
 
-function jwtFromQuery (name) {
-  return getToken
+function jwtFromQuery (ctx, name) {
+  const token = ctx.req.query[name]
 
-  function getToken (ctx) {
-    const token = ctx.req.query[name]
-
-    return {
-      token,
-      error: !token && 'Missing jwt in the query string'
-    }
+  return {
+    token,
+    error: !token && 'Missing jwt in the query string'
   }
 }
 
-function jwtFromCookie (name) {
-  return getToken
+function jwtFromCookie (ctx, name) {
+  const token = ctx.cookies.get(name)
 
-  function getToken (ctx) {
-    const token = ctx.cookies.get(name)
-
-    return {
-      token,
-      error: !token && 'Missing jwt in the cookie'
-    }
+  return {
+    token,
+    error: !token && 'Missing jwt in the cookie'
   }
 }
 
