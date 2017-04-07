@@ -27,6 +27,73 @@ test('should get error when missing the secret key', t => {
   t.is(error.message, 'Missing the secret key')
 })
 
+test('should throw 401 if no authorization header', async t => {
+  const secret = 'trek engine'
+  const app = new Engine()
+  const options = { secret }
+
+  app.use(jwt(options))
+
+  const url = await listen(app)
+  const res = await request({
+    url,
+    simple: false,
+    resolveWithFullResponse: true
+  })
+
+  t.is(res.body, 'Missing or invalid jwt in the request header')
+  t.is(res.statusCode, 401)
+})
+
+test('should throw if secret provider returns a secret that does not match jwt', async t => {
+  const secret = 'shhhhhh'
+  const token = JWT.sign({ foo: 'bar' }, secret)
+  const options = { secret: 'not my secret' }
+
+  const app = new Engine()
+
+  app.use(jwt(options))
+
+  app.use(({ res }) => {
+    res.body = secret
+  })
+
+  const url = await listen(app)
+  const res = await request({
+    url,
+    simple: false,
+    resolveWithFullResponse: true,
+    headers: {
+      Authorization: 'Bearer ' + token
+    }
+  })
+
+  t.true(/invalid signature/.test(res.body))
+  t.is(res.statusCode, 401)
+})
+
+test('should continue if `passthrough` is true', async t => {
+  const secret = 'trek engine'
+  const app = new Engine()
+  const options = { secret, passthrough: true }
+
+  app.use(jwt(options))
+
+  app.use(({ res }) => {
+    res.body = null
+  })
+
+  const url = await listen(app)
+  const res = await request({
+    url,
+    simple: false,
+    resolveWithFullResponse: true
+  })
+
+  t.is(res.body, '')
+  t.is(res.statusCode, 204)
+})
+
 test('should get user from header', async t => {
   const secret = 'trek engine'
   const app = new Engine()

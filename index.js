@@ -1,6 +1,12 @@
+/*!
+ * trek-jwt
+ * Copyright(c) 2017 Fangdun Cai <cfddream@gmail.com> (https://fundon.me)
+ * MIT Licensed
+ */
+
 'use strict'
 
-module.exports = makeJWT
+module.exports = jwtWithConfig
 
 const JWT = require('jsonwebtoken')
 
@@ -13,7 +19,7 @@ const defaults = {
   passthrough: false
 }
 
-function makeJWT (options = {}) {
+function jwtWithConfig (options = {}) {
   options = Object.assign({}, defaults, options)
 
   const { key, secret, tokenLookup, authScheme, verifyOptions, passthrough } = options
@@ -39,7 +45,7 @@ function makeJWT (options = {}) {
   return jwt
 
   function jwt (ctx, next) {
-    const { token, error } = extractor(ctx, name, authScheme)
+    const { error, token } = extractor(ctx, name, authScheme)
 
     if (!passthrough && error) {
       return ctx.res.send(401, error)
