@@ -1,5 +1,5 @@
 /*!
- * trek-jwt
+ * sessions-provider-memory
  * Copyright(c) 2017 Fangdun Cai <cfddream@gmail.com> (https://fundon.me)
  * MIT Licensed
  */
@@ -10,6 +10,16 @@ module.exports = jwtWithConfig
 
 const JWT = require('jsonwebtoken')
 
+const MISSING = {
+  code: 400,
+  message: 'Missing or malformed jwt'
+}
+
+const INVALID = {
+  code: 401,
+  message: 'Invalid or expired jwt'
+}
+
 const defaults = {
   key: 'user',
   secret: undefined,
@@ -19,18 +29,29 @@ const defaults = {
   passthrough: false
 }
 
-function jwtWithConfig (options = {}) {
+function jwtWithConfig(options = {}) {
   options = Object.assign({}, defaults, options)
 
-  const { key, secret, tokenLookup, authScheme, verifyOptions, passthrough } = options
+  const {
+    key,
+    secret,
+    tokenLookup,
+    authScheme,
+    verifyOptions,
+    passthrough,
+    errors = {}
+  } = options
 
   if (!secret) {
     throw new Error('Missing the secret key')
   }
 
+  const missing = Object.assign(MISSING, errors.missing)
+  const invalid = Object.assign(INVALID, errors.invalid)
+
   const [via, name] = tokenLookup.split(':')
 
-  let extractor = jwtFromHeader
+  let extractor
 
   switch (via) {
     case 'query':
@@ -39,16 +60,17 @@ function jwtWithConfig (options = {}) {
     case 'cookie':
       extractor = jwtFromCookie
       break
-    // No default
+    default:
+      extractor = jwtFromHeader
   }
 
   return jwt
 
-  function jwt (ctx, next) {
-    const { error, token } = extractor(ctx, name, authScheme)
+  function jwt(ctx, next) {
+    const { hasError, token } = extractor(ctx, name, authScheme)
 
-    if (!passthrough && error) {
-      return ctx.res.send(401, error)
+    if (!passthrough && hasError) {
+      return ctx.res.send(missing.code, missing.message)
     } else if (passthrough && !token) {
       return next()
     }
@@ -57,45 +79,50 @@ function jwtWithConfig (options = {}) {
       .then(result => {
         ctx.state[key] = result
       })
-      .catch(err => {
+      .catch(() => {
         if (!passthrough) {
-          ctx.res.send(401, err)
+          ctx.res.send(invalid.code, invalid.message)
         }
       })
       .then(next)
   }
 }
 
-function jwtFromHeader (ctx, header, authScheme) {
+function jwtFromHeader(ctx, header, authScheme) {
   const auth = ctx.req.get(header) || ''
   const [scheme, token = ''] = auth.split(' ')
 
   return {
     token,
-    error: !(scheme === authScheme && 0 < token.length) && 'Missing or invalid jwt in the request header'
+    hasError: !(scheme === authScheme && token.length > 0)
   }
 }
 
-function jwtFromQuery (ctx, name) {
+function jwtFromQuery(ctx, name) {
   const token = ctx.req.query[name]
 
   return {
     token,
-    error: !token && 'Missing jwt in the query string'
+    hasError: !token
   }
 }
 
-function jwtFromCookie (ctx, name) {
+function jwtFromCookie(ctx, name) {
   const token = ctx.cookies.get(name)
 
   return {
     token,
-    error: !token && 'Missing jwt in the cookie'
+    hasError: !token
   }
 }
 
-function verify (token, secret, options) {
+function verify(token, secret, options) {
   return new Promise((resolve, reject) => {
-    JWT.verify(token, secret, options, (err, decoded) => err ? reject(err) : resolve(decoded))
+    JWT.verify(
+      token,
+      secret,
+      options,
+      (err, decoded) => (err ? reject(err) : resolve(decoded))
+    )
   })
 }

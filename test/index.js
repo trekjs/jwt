@@ -6,7 +6,7 @@ import jwt from '..'
 
 const listen = app => {
   return new Promise((resolve, reject) => {
-    app.run(function (err) {
+    app.run(function(err) {
       if (err) {
         return reject(err)
       }
@@ -27,7 +27,7 @@ test('should get error when missing the secret key', t => {
   t.is(error.message, 'Missing the secret key')
 })
 
-test('should throw 401 if no authorization header', async t => {
+test('should throw 400 if no authorization header', async t => {
   const secret = 'trek engine'
   const app = new Engine()
   const options = { secret }
@@ -41,8 +41,8 @@ test('should throw 401 if no authorization header', async t => {
     resolveWithFullResponse: true
   })
 
-  t.is(res.body, 'Missing or invalid jwt in the request header')
-  t.is(res.statusCode, 401)
+  t.is(res.body, 'Missing or malformed jwt')
+  t.is(res.statusCode, 400)
 })
 
 test('should throw if secret provider returns a secret that does not match jwt', async t => {
@@ -68,7 +68,7 @@ test('should throw if secret provider returns a secret that does not match jwt',
     }
   })
 
-  t.true(/invalid signature/.test(res.body))
+  t.true(/Invalid/.test(res.body))
   t.is(res.statusCode, 401)
 })
 
@@ -172,4 +172,3 @@ test('should get user from cookie', async t => {
   t.is(res.body.foor, 'bar')
   t.is(res.statusCode, 200)
 })
-
