@@ -172,3 +172,51 @@ test('should get user from cookie', async t => {
   t.is(res.body.foor, 'bar')
   t.is(res.statusCode, 200)
 })
+
+test('should throw error when skip is true', t => {
+  const secret = 'trek engine'
+  const options = {
+    secret,
+    tokenLookup: 'cookie:auth',
+    skip: true
+  }
+
+  const error = t.throws(() => {
+    jwt(options)
+  }, TypeError)
+
+  t.is(error.message, 'option skip must be function')
+})
+
+test('should skip body parse', async t => {
+  const secret = 'trek engine'
+  const app = new Engine()
+  const options = {
+    secret,
+    tokenLookup: 'cookie:auth',
+    skip() {
+      return true
+    }
+  }
+
+  app.use(jwt(options))
+
+  app.use(async ctx => {
+    ctx.res.send(200, ctx.state.user)
+  })
+
+  const url = await listen(app)
+  const jar = request.jar()
+  const cookie = request.cookie('auth=' + JWT.sign({ foor: 'bar' }, secret))
+  jar.setCookie(cookie, url)
+  const res = await request({
+    url,
+    jar,
+    json: true,
+    simple: false,
+    resolveWithFullResponse: true
+  })
+
+  t.is(res.body, undefined)
+  t.is(res.statusCode, 200)
+})

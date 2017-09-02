@@ -1,5 +1,5 @@
 /*!
- * sessions-provider-memory
+ * jwt
  * Copyright(c) 2017 Fangdun Cai <cfddream@gmail.com> (https://fundon.me)
  * MIT Licensed
  */
@@ -23,6 +23,7 @@ const INVALID = {
 const defaults = {
   key: 'user',
   secret: undefined,
+  skip: false,
   tokenLookup: 'header:Authorization',
   authScheme: 'Bearer',
   verifyOptions: undefined,
@@ -35,6 +36,7 @@ function jwtWithConfig(options = {}) {
   const {
     key,
     secret,
+    skip,
     tokenLookup,
     authScheme,
     verifyOptions,
@@ -44,6 +46,10 @@ function jwtWithConfig(options = {}) {
 
   if (!secret) {
     throw new Error('Missing the secret key')
+  }
+
+  if (skip !== false && typeof skip !== 'function') {
+    throw new TypeError('option skip must be function')
   }
 
   const missing = Object.assign(MISSING, errors.missing)
@@ -67,6 +73,8 @@ function jwtWithConfig(options = {}) {
   return jwt
 
   function jwt(ctx, next) {
+    if (skip && skip(ctx, options)) return next()
+
     const { hasError, token } = extractor(ctx, name, authScheme)
 
     if (!passthrough && hasError) {

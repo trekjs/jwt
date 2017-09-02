@@ -41,6 +41,17 @@ start().catch(err => console.log(err))
 
 ## API
 
+```js
+const defaults = {
+  key: 'user',
+  secret: undefined,
+  skip: false,
+  tokenLookup: 'header:Authorization',
+  authScheme: 'Bearer',
+  verifyOptions: undefined,
+  passthrough: false
+}
+```
 
 
 ## Badges
