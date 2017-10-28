@@ -37,11 +37,14 @@ test('should throw 400 if no authorization header', async t => {
   const url = await listen(app)
   const res = await request({
     url,
+    json: true,
     simple: false,
     resolveWithFullResponse: true
   })
 
-  t.is(res.body, 'Missing or malformed jwt')
+  const { error } = res.body
+  t.is(error.message, 'Missing or malformed jwt')
+  t.is(error.code, 400)
   t.is(res.statusCode, 400)
 })
 
@@ -61,6 +64,7 @@ test('should throw if secret provider returns a secret that does not match jwt',
   const url = await listen(app)
   const res = await request({
     url,
+    json: true,
     simple: false,
     resolveWithFullResponse: true,
     headers: {
@@ -68,7 +72,8 @@ test('should throw if secret provider returns a secret that does not match jwt',
     }
   })
 
-  t.true(/Invalid/.test(res.body))
+  const { error } = res.body
+  t.true(/Invalid/.test(error.message))
   t.is(res.statusCode, 401)
 })
 

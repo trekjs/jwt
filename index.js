@@ -78,7 +78,7 @@ function jwtWithConfig(options = {}) {
     const { hasError, token } = extractor(ctx, name, authScheme)
 
     if (!passthrough && hasError) {
-      return ctx.res.send(missing.code, missing.message)
+      return ctx.res.send(missing.code, { error: missing })
     } else if (passthrough && !token) {
       return next()
     }
@@ -89,7 +89,7 @@ function jwtWithConfig(options = {}) {
       })
       .catch(() => {
         if (!passthrough) {
-          ctx.res.send(invalid.code, invalid.message)
+          ctx.res.send(invalid.code, { error: invalid })
         }
       })
       .then(next)
