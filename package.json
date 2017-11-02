@@ -1,6 +1,6 @@
 {
   "name": "trek-jwt",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "JSON Web Tokens Middleware for Trek.js",
   "repository": "trekjs/jwt",
   "author": {
