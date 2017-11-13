@@ -42,9 +42,8 @@ test('should throw 400 if no authorization header', async t => {
     resolveWithFullResponse: true
   })
 
-  const { error } = res.body
-  t.is(error.message, 'Missing or malformed jwt')
-  t.is(error.code, 400)
+  const { message } = res.body
+  t.is(message, 'Missing or malformed jwt')
   t.is(res.statusCode, 400)
 })
 
@@ -72,8 +71,8 @@ test('should throw if secret provider returns a secret that does not match jwt',
     }
   })
 
-  const { error } = res.body
-  t.true(/Invalid/.test(error.message))
+  const { message } = res.body
+  t.true(/Invalid/.test(message))
   t.is(res.statusCode, 401)
 })
 
