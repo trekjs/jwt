@@ -86,13 +86,13 @@ function jwtWithConfig(options = {}) {
     return verify(token, secret, verifyOptions)
       .then(result => {
         ctx.state[key] = result
-        return next()
       })
       .catch(() => {
         if (!passthrough) {
           ctx.res.send(invalid.code, { message: invalid.message })
         }
       })
+      .then(next)
   }
 }
 
