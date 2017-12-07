@@ -8,7 +8,14 @@
 
 module.exports = jwtWithConfig
 
+const { promisify } = require('util')
 const JWT = require('jsonwebtoken')
+
+const verify = promisify(JWT.verify)
+const sign = promisify(JWT.sign)
+
+jwtWithConfig.verify = verify
+jwtWithConfig.sign = sign
 
 const MISSING = {
   code: 400,
@@ -122,15 +129,4 @@ function jwtFromCookie(ctx, name) {
     token,
     hasError: !token
   }
-}
-
-function verify(token, secret, options) {
-  return new Promise((resolve, reject) => {
-    JWT.verify(
-      token,
-      secret,
-      options,
-      (err, decoded) => (err ? reject(err) : resolve(decoded))
-    )
-  })
 }
